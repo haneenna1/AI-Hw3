@@ -14,7 +14,7 @@ from sklearn.model_selection import KFold
 ========================================================================
 """
 
-ID = 123456789  # TODO: change it to your personal ID
+ID = 324045335  # TODO: change it to your personal ID
 random_gen = RandomState(seed=ID)
 print_formatted_values = False
 
@@ -38,7 +38,7 @@ def accuracy(y: np.array, y_pred: np.array):
     assert y.ndim == 1
 
     # ====== YOUR CODE: ======
-    raise NotImplementedError
+    accuracy_val = np.mean(y == y_pred)
     # ========================
 
     return accuracy_val
@@ -60,7 +60,9 @@ def l2_dist(x1: np.array, x2: np.array):
     dists = None
 
     # ====== YOUR CODE: ======
-    raise NotImplementedError
+    x1_repeated = np.repeat(x1, x2.shape[0], axis=0)
+    x2_tiled = np.tile(x2, (x1.shape[0], 1))
+    dists = np.linalg.norm(x1_repeated - x2_tiled, axis=1).reshape(x1.shape[0], x2.shape[0])
     # ========================
 
     return dists
