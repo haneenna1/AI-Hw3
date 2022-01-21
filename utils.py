@@ -1,3 +1,4 @@
+import os.path
 import pathlib
 
 import numpy as np
@@ -76,9 +77,9 @@ def load_data_set(clf_type: str):
     """
     assert clf_type in ('ID3', 'KNN'), 'The parameter clf_type must be ID3 or KNN'
     hw_path = str(pathlib.Path(__file__).parent.absolute())
-    dataset_path = hw_path + f"\\{clf_type}-dataset\\"
-    train_file_path = dataset_path + "\\train.csv"
-    test_file_path = dataset_path + "\\test.csv"
+    dataset_path = os.path.join(hw_path, f"{clf_type}-dataset")
+    train_file_path = os.path.join(dataset_path, "train.csv")
+    test_file_path = os.path.join(dataset_path, "test.csv")
     # Import all columns omitting the fist which consists the names of the attributes
     train_dataset = pd.read_csv(train_file_path)
     test_dataset = pd.read_csv(test_file_path)

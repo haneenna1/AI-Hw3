@@ -1,5 +1,7 @@
 import subprocess
 
+import numpy as np
+
 from KNN import KNNClassifier
 from utils import *
 
@@ -12,6 +14,36 @@ def run_knn(k, x_train, y_train, x_test, y_test, formatted_print=True):
     y_pred = neigh.predict(x_test)
     acc = accuracy(y_test, y_pred)
     print(f'{acc * 100:.2f}%' if formatted_print else acc)
+
+
+def normalize(x):
+    mini = np.min(x, axis=0).reshape((1, 8))
+    mini = np.repeat(mini, x.shape[0], axis=0)
+    maxi = np.max(x, axis=0).reshape((1, 8))
+    maxi = np.repeat(maxi, x.shape[0], axis=0)
+    norm_x = (x - mini) / (maxi - mini)
+    return norm_x
+
+
+def power_set(s):
+    x = len(s)
+    powerset = []
+    for i in range(1 << x):
+        powerset += [[s[j] for j in range(x) if (i & (1 << j))]]
+    return powerset
+
+
+def farthest_point_sample(x, b):
+    top_b_features_indices = []
+    corr_dist = 1 - np.corrcoef(x, rowvar=False)
+    first = np.argmax(np.mean(corr_dist, axis=1))
+    top_b_features_indices.append(first)
+    inner_arg = corr_dist[first, :]
+    for _ in range(b - 1):
+        candidate = inner_arg.argmax()
+        top_b_features_indices.append(candidate)
+        inner_arg = np.minimum(inner_arg, corr_dist[candidate, :])
+    return top_b_features_indices
 
 
 def get_top_b_features(x, y, b=5, k=51):
@@ -29,7 +61,18 @@ def get_top_b_features(x, y, b=5, k=51):
     top_b_features_indices = []
 
     # ====== YOUR CODE: ======
-    raise NotImplementedError
+    means = np.mean(x, axis=0)
+    class_0 = np.argwhere(y == 0)
+    class_1 = np.argwhere(y == 1)
+    class_0_means = np.mean(x[class_0, :], axis=0)
+    class_1_means = np.mean(x[class_1, :], axis=0)
+    class_0_vars = np.var(x[class_0, :], axis=0)
+    class_1_vars = np.var(x[class_1, :], axis=0)
+    num = class_0.shape[0] * (means - class_0_means) ** 2 + class_1.shape[0] * (means - class_1_means) ** 2
+    din = class_0.shape[0] * class_0_vars + class_1.shape[0] * class_1_vars
+    top_b_features_indices = np.argsort(num / din)[0].tolist()[::-1]
+    top_b_features_indices = top_b_features_indices[:b]
+    print(top_b_features_indices)
     # ========================
 
     return top_b_features_indices
@@ -65,7 +108,7 @@ if __name__ == '__main__':
                                                          target_attribute='Outcome')
 
     best_k = 51
-    b = 0
+    b = 4
 
     # # ========================================================================
 
