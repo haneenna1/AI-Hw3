@@ -1,3 +1,5 @@
+import numpy as np
+
 from ID3 import ID3
 from utils import *
 
@@ -62,7 +64,11 @@ def basic_experiment(x_train, y_train, x_test, y_test, formatted_print=False):
     acc = None
 
     # ====== YOUR CODE: ======
-    raise NotImplementedError
+    id3_tree = ID3(list(set(y_train)))
+    id3_tree.fit(x_train, y_train)
+    y_pred = id3_tree.predict(x_test)
+    acc = accuracy(np.array(y_test), np.array(y_pred))
+    print(acc)
     # ========================
 
     assert acc > 0.9, 'you should get an accuracy of at least 90% for the full ID3 decision tree'
@@ -106,42 +112,6 @@ def cross_validation_experiment(plot_graph=True):
         print('{:^10d} | {:.2f}%'.format(best_m, accuracy_best_m))
 
     # ========================
-    return best_m
-
-    """
-    Use cross validation to find the best M for the ID3 model, used as pruning parameter.
-
-    :param plot_graph: either to plot or not the experiment result, default is True
-    :return: best_m: the value of M with the highest mean accuracy across folds
-    """
-    # TODO:
-    #  - fill the m_choices list with  at least 5 different values for M.
-    #  - Instate ID3 decision tree instance.
-    #  - Fit the tree on the training data set.
-    #  - Test the model on the test set (evaluate the accuracy) and print the result.
-
-    best_m = None
-    accuracies = []
-    m_choices = []
-    num_folds = 5
-
-    # ====== YOUR CODE: ======
-    assert len(m_choices) >= 5, 'fill the m_choices list with  at least 5 different values for M.'
-    
-
-    # ========================
-    accuracies_mean = np.array([np.mean(acc) * 100 for acc in accuracies])
-    if len(m_choices) >= 5 and plot_graph:
-        util_plot_graph(x=m_choices, y=accuracies_mean, x_label='M', y_label='Validation Accuracy %')
-        print('{:^10s} | {:^10s}'.format('M value', 'Validation Accuracy'))
-        for i, m in enumerate(m_choices):
-            print('{:^10d} | {:.2f}%'.format(m, accuracies_mean[i]))
-        print(f'===========================')
-        # Calculate accuracy
-        accuracy_best_m = accuracies_mean[m_choices.index(best_m)]
-        print('{:^10s} | {:^10s}'.format('Best M', 'Validation Accuracy'))
-        print('{:^10d} | {:.2f}%'.format(best_m, accuracy_best_m))
-
     return best_m
 
 

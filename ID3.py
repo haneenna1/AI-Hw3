@@ -33,7 +33,7 @@ class ID3:
 
         # ====== YOUR CODE: ======
         for cls in counts:
-            p = counts[cls] // len(rows)
+            p = counts[cls] / len(rows)
             impurity += -p * math.log2(p)
         # ========================
         return impurity
@@ -59,9 +59,9 @@ class ID3:
         # ====== YOUR CODE: ======
         info_gain_value += current_uncertainty
         left_entropy = self.entropy(left, left_labels)
-        info_gain_value -= (len(left) // (len(left) + len(right))) * left_entropy
+        info_gain_value -= (len(left) / (len(left) + len(right))) * left_entropy
         right_entropy = self.entropy(right, right_labels)
-        info_gain_value -= (len(left) // (len(left) + len(right))) * right_entropy
+        info_gain_value -= (len(left) / (len(left) + len(right))) * right_entropy
         # ========================
 
         return info_gain_value
@@ -115,7 +115,8 @@ class ID3:
 
         # ====== YOUR CODE: ======
         for column_idx, column_name in enumerate(self.label_names):
-            sorted_values = [row[column_idx] for row in rows].sort()
+            sorted_values = [row[column_idx] for row in rows]
+            sorted_values.sort()
             values = set([(g + h) / 2 for g, h in zip(sorted_values[:-1], sorted_values[1:])])
             for value in values:
                 curr_question = Question(column_name, column_idx, value)
@@ -182,13 +183,14 @@ class ID3:
         prediction = None
 
         # ====== YOUR CODE: ======
-        if node is Leaf:
+        if isinstance(node, Leaf):
             return max(node.predictions, key=node.predictions.get)
-        answer = node.question.match(row)
-        if answer:
-            prediction = self.predict_sample(row, node.true_branch)
-        else:
-            prediction = self.predict_sample(row, node.false_branch)
+        if isinstance(node, DecisionNode):
+            answer = node.question.match(row)
+            if answer:
+                prediction = self.predict_sample(row, node.true_branch)
+            else:
+                prediction = self.predict_sample(row, node.false_branch)
         # ========================
 
         return prediction
