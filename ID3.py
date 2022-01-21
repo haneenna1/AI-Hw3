@@ -37,7 +37,6 @@ class ID3:
              impurity += -p*math.log2(p)
 
         # ========================
-
         return impurity
 
     def info_gain(self, left, left_labels, right, right_labels, current_uncertainty):
@@ -94,7 +93,7 @@ class ID3:
             else: 
                 false_rows.append(row)
                 false_labels.append(labels[idx])
-        gain = ID3.info_gain(false_rows, false_labels, true_rows, true_labels, current_uncertainty)
+        gain = ID3.info_gain(true_rows, true_labels, false_rows, false_labels, current_uncertainty)
 
         # ========================
 
@@ -117,7 +116,21 @@ class ID3:
         current_uncertainty = self.entropy(rows, labels)
 
         # ====== YOUR CODE: ======
-        raise NotImplementedError
+        
+        for coloumn_idx, coloumn_name in enumerate(self.label_names):
+
+            ## TODO: how do we find the possible values for this feature? 
+            ## dynamic dicritization
+
+            for  value in values: 
+                
+                curr_question = Question(coloumn_name, coloumn_idx, value)
+                curr_partition = ID3.partition(rows, labels, curr_question, current_uncertainty)
+                if (curr_partition[0] >= best_gain):
+                    best_gain = curr_partition[0]
+                    best_question = curr_question
+                    best_true_rows, best_true_labels  = curr_partition[1], curr_partition[2]
+                    best_false_rows, best_false_labels= curr_partition[3], curr_partition[4]
         # ========================
 
         return best_gain, best_question, best_true_rows, best_true_labels, best_false_rows, best_false_labels
