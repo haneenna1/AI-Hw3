@@ -32,8 +32,8 @@ class ID3:
         impurity = 0.0
 
         # ====== YOUR CODE: ======
-        for label in labels:
-             p = counts[label] // rows.size
+        for cls in counts:
+             p = counts[cls] // rows.size
              impurity += -p*math.log2(p)
 
         # ========================
@@ -60,7 +60,7 @@ class ID3:
         info_gain_value = 0.0
         # ====== YOUR CODE: ======
         info_gain_value += current_uncertainty
-        
+
         left_entropy = ID3.entropy(left, left_labels) 
         info_gain_value -= (left.size // (left.size + right.size)) * left_entropy
         right_entropy = ID3.entropy(right, right_labels) 
@@ -87,7 +87,14 @@ class ID3:
         assert len(rows) == len(labels), 'Rows size should be equal to labels size.'
 
         # ====== YOUR CODE: ======
-        raise NotImplementedError
+        for row in rows: 
+            if question.match(row):
+                true_rows.append(row)
+                true_labels.append()
+            else: 
+                false_rows.append(row)
+                false_labels.append()
+
         # ========================
 
         return gain, true_rows, true_labels, false_rows, false_labels
