@@ -87,13 +87,14 @@ class ID3:
         assert len(rows) == len(labels), 'Rows size should be equal to labels size.'
 
         # ====== YOUR CODE: ======
-        for row in rows: 
+        for idx, row in enumerate(rows): 
             if question.match(row):
                 true_rows.append(row)
-                true_labels.append()
+                true_labels.append(labels[idx])
             else: 
                 false_rows.append(row)
-                false_labels.append()
+                false_labels.append(labels[idx])
+        gain = ID3.info_gain(false_rows, false_labels, true_rows, true_labels, current_uncertainty)
 
         # ========================
 
