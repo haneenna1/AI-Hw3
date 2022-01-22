@@ -114,7 +114,8 @@ class ID3:
         current_uncertainty = self.entropy(rows, labels)
 
         # ====== YOUR CODE: ======
-        for column_idx, column_name in enumerate(self.label_names):
+        # slice the label name because we won't split by the "diagnosis" coloumn
+        for column_idx, column_name in enumerate(self.label_names[1:]):
             sorted_values = [row[column_idx] for row in rows]
             sorted_values.sort()
             values = set([(g + h) / 2 for g, h in zip(sorted_values[:-1], sorted_values[1:])])
@@ -149,9 +150,9 @@ class ID3:
         # ====== YOUR CODE: ======
         if len(set(labels)) <= 1:
             return Leaf(rows, labels)
-        _, best_question, b_true_branch, true_labels, b_false_branch, false_labels = self.find_best_split(rows, labels)
-        true_branch = self.build_tree(b_true_branch, true_labels)
-        false_branch = self.build_tree(b_false_branch, false_labels)
+        _, best_question, best_true_rows, best_true_labels, best_false_rows, best_false_labels = self.find_best_split(rows, labels)
+        true_branch = self.build_tree(best_true_rows, best_true_labels)
+        false_branch = self.build_tree(best_false_rows, best_false_labels)
         # ========================
 
         return DecisionNode(best_question, true_branch, false_branch)

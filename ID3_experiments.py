@@ -51,7 +51,7 @@ def find_best_pruning_m(train_dataset: np.array, m_choices, num_folds=5):
 
 
 # ========================================================================
-def basic_experiment(x_train, y_train, x_test, y_test, formatted_print=False):
+def basic_experiment(train_rows, train_labels, test_rows, test_labels, formatted_print=False):
     """
     Use ID3 model, to train on the training dataset and evaluating the accuracy in the test set.
     """
@@ -64,10 +64,10 @@ def basic_experiment(x_train, y_train, x_test, y_test, formatted_print=False):
     acc = None
 
     # ====== YOUR CODE: ======
-    id3_tree = ID3(list(set(y_train)))
-    id3_tree.fit(x_train, y_train)
-    y_pred = id3_tree.predict(x_test)
-    acc = accuracy(np.array(y_test), np.array(y_pred))
+    id3_tree = ID3(label_names=attributes_names)
+    id3_tree.fit(train_rows, train_labels)
+    y_pred = id3_tree.predict(test_rows)
+    acc = accuracy(np.array(test_labels), np.array(y_pred))
     print(acc)
     # ========================
 
