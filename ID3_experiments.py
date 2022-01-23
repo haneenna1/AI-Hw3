@@ -1,4 +1,5 @@
 import numpy as np
+import sklearn.model_selection
 
 from ID3 import ID3
 from utils import *
@@ -41,7 +42,14 @@ def find_best_pruning_m(train_dataset: np.array, m_choices, num_folds=5):
         #  or implement something else.
 
         # ====== YOUR CODE: ======
-        raise NotImplementedError
+        kf = KFold(random_state=324045335, shuffle=True, n_splits=num_folds)
+        inner_accuracies = []
+        for train_set, validation_set in create_train_validation_split(train_dataset, kf):
+            x_train, y_train , x_test, y_test = get_dataset_split(train_set, validation_set, target_attribute)
+            model.fit(x_train, y_train)
+            y_pred = model.predict(x_test)
+            inner_accuracies += [accuracy(np.array(y_test), np.array(y_pred))]
+        accuracies += [accuracies]
         # ========================
 
     best_m_idx = np.argmax([np.mean(acc) for acc in accuracies])
@@ -68,7 +76,6 @@ def basic_experiment(train_rows, train_labels, test_rows, test_labels, formatted
     id3_tree.fit(train_rows, train_labels)
     y_pred = id3_tree.predict(test_rows)
     acc = accuracy(np.array(test_labels), np.array(y_pred))
-    print(acc)
     # ========================
 
     assert acc > 0.9, 'you should get an accuracy of at least 90% for the full ID3 decision tree'
@@ -90,14 +97,14 @@ def cross_validation_experiment(plot_graph=True):
     #  - Test the model on the test set (evaluate the accuracy) and print the result.
     best_m = None
     accuracies = []
-    m_choices = []
+    m_choices = [3, 6, 9, 12, 15]
     num_folds = 5
     if len(m_choices) < 5:
         print('fill the m_choices list with  at least 5 different values for M.')
         return None
 
     # ====== YOUR CODE: ======
-
+    best_m, accuracies = find_best_pruning_m(train_dataset=train_dataset, m_choices=m_choices, num_folds=num_folds)
     # ========================
     accuracies_mean = np.array([np.mean(acc) * 100 for acc in accuracies])
     if best_m is not None and plot_graph:
@@ -131,7 +138,10 @@ def best_m_test(x_train, y_train, x_test, y_test, min_for_pruning):
     acc = None
 
     # ====== YOUR CODE: ======
-    raise NotImplementedError
+    id3_tree = ID3(label_names=attributes_names, min_for_pruning=min_for_pruning)
+    id3_tree.fit(x_train, y_train)
+    y_pred = id3_tree.predict(x_test)
+    acc = accuracy(np.array(y_test), np.array(y_pred))
     # ========================
 
     return acc
@@ -157,7 +167,7 @@ if __name__ == '__main__':
            modify the value from False to True to plot the experiment result
     """
     plot_graphs = True
-    best_m = cross_validation_experiment(plot_graph=plot_graphs) or 50
+    best_m = cross_validation_experiment(plot_graph=plot_graphs)
     print(f'best_m = {best_m}')
 
     """

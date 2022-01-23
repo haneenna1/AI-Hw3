@@ -32,7 +32,7 @@ class ID3:
         impurity = 0.0
 
         # ====== YOUR CODE: ======
-        for cls in counts:
+        for cls in counts.keys():
             p = counts[cls] / len(rows)
             impurity += -p * math.log2(p)
         # ========================
@@ -61,7 +61,7 @@ class ID3:
         left_entropy = self.entropy(left, left_labels)
         info_gain_value -= (len(left) / (len(left) + len(right))) * left_entropy
         right_entropy = self.entropy(right, right_labels)
-        info_gain_value -= (len(left) / (len(left) + len(right))) * right_entropy
+        info_gain_value -= (len(right) / (len(left) + len(right))) * right_entropy
         # ========================
 
         return info_gain_value
@@ -115,10 +115,11 @@ class ID3:
 
         # ====== YOUR CODE: ======
         # slice the label name because we won't split by the "diagnosis" coloumn
+        used_value_feature = None
         for column_idx, column_name in enumerate(self.label_names[1:]):
-            sorted_values = [row[column_idx] for row in rows]
+            sorted_values = list(set([row[column_idx] for row in rows]))
             sorted_values.sort()
-            values = set([(g + h) / 2 for g, h in zip(sorted_values[:-1], sorted_values[1:])])
+            values = [(g + h) / 2 for g, h in zip(sorted_values[:-1], sorted_values[1:])]
             for value in values:
                 curr_question = Question(column_name, column_idx, value)
                 curr_partition = self.partition(rows, labels, curr_question, current_uncertainty)
@@ -127,6 +128,8 @@ class ID3:
                     best_question = curr_question
                     best_true_rows, best_true_labels = curr_partition[1], curr_partition[2]
                     best_false_rows, best_false_labels = curr_partition[3], curr_partition[4]
+                    used_value_feature = column_name
+        self.used_features.add(used_value_feature)
         # ========================
 
         return best_gain, best_question, best_true_rows, best_true_labels, best_false_rows, best_false_labels
@@ -148,9 +151,10 @@ class ID3:
         true_branch, false_branch = None, None
 
         # ====== YOUR CODE: ======
-        if len(set(labels)) <= 1:
+        if len(rows) <= self.min_for_pruning or self.entropy(rows, labels) == 0:
             return Leaf(rows, labels)
-        _, best_question, best_true_rows, best_true_labels, best_false_rows, best_false_labels = self.find_best_split(rows, labels)
+        _, best_question, best_true_rows, best_true_labels, best_false_rows, best_false_labels = self.find_best_split(
+            rows, labels)
         true_branch = self.build_tree(best_true_rows, best_true_labels)
         false_branch = self.build_tree(best_false_rows, best_false_labels)
         # ========================
@@ -184,14 +188,9 @@ class ID3:
         prediction = None
 
         # ====== YOUR CODE: ======
-        if isinstance(node, Leaf):
-            return max(node.predictions, key=node.predictions.get)
-        if isinstance(node, DecisionNode):
-            answer = node.question.match(row)
-            if answer:
-                prediction = self.predict_sample(row, node.true_branch)
-            else:
-                prediction = self.predict_sample(row, node.false_branch)
+        while isinstance(node, DecisionNode):
+            node = node.true_branch if node.question.match(row) else node.false_branch
+        prediction = max(node.predictions, key=node.predictions.get)
         # ========================
 
         return prediction

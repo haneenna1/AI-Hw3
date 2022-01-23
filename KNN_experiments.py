@@ -72,7 +72,6 @@ def get_top_b_features(x, y, b=5, k=51):
     din = class_0.shape[0] * class_0_vars + class_1.shape[0] * class_1_vars
     top_b_features_indices = np.argsort(num / din)[0].tolist()[::-1]
     top_b_features_indices = top_b_features_indices[:b]
-    print(top_b_features_indices)
     # ========================
 
     return top_b_features_indices
