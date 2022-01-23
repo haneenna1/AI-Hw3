@@ -114,8 +114,8 @@ class ID3:
         current_uncertainty = self.entropy(rows, labels)
 
         # ====== YOUR CODE: ======
-        # slice the label name because we won't split by the "diagnosis" coloumn
         used_value_feature = None
+        # slice the label name because we won't split by the "diagnosis" coloumn
         for column_idx, column_name in enumerate(self.label_names[1:]):
             sorted_values = list(set([row[column_idx] for row in rows]))
             sorted_values.sort()
@@ -151,7 +151,7 @@ class ID3:
         true_branch, false_branch = None, None
 
         # ====== YOUR CODE: ======
-        if len(rows) <= self.min_for_pruning or self.entropy(rows, labels) == 0:
+        if len(rows) <= self.min_for_pruning or len(set(labels)) <= 1:
             return Leaf(rows, labels)
         _, best_question, best_true_rows, best_true_labels, best_false_rows, best_false_labels = self.find_best_split(
             rows, labels)
