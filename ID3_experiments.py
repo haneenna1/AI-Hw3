@@ -45,7 +45,7 @@ def find_best_pruning_m(train_dataset: np.array, m_choices, num_folds=5):
         kf = KFold(random_state=ID, shuffle=True, n_splits=num_folds)
         inner_accuracies = []
         for ds_train, ds_valid in create_train_validation_split(train_dataset, kf):
-            x_train, y_train , x_test, y_test = get_dataset_split(ds_train, ds_valid, target_attribute)
+            x_train, y_train, x_test, y_test = get_dataset_split(ds_train, ds_valid, target_attribute)
             model.fit(x_train, y_train)
             y_pred = model.predict(x_test)
             inner_accuracies += [accuracy(np.array(y_test), np.array(y_pred))]
@@ -97,7 +97,7 @@ def cross_validation_experiment(plot_graph=True):
     #  - Test the model on the test set (evaluate the accuracy) and print the result.
     best_m = None
     accuracies = []
-    m_choices = [15, 20 , 30, 45, 60]
+    m_choices = [15, 20, 30, 45, 55]
     num_folds = 5
     # if len(m_choices) < 5:
     #     print('fill the m_choices list with  at least 5 different values for M.')
@@ -169,7 +169,6 @@ if __name__ == '__main__':
     plot_graphs = True
     best_m = cross_validation_experiment(plot_graph=plot_graphs)
     print(f'best_m = {best_m}')
-
     """
         pruning experiment, run with the best parameter
         (*) To run the experiment uncomment below code and run it
