@@ -16,13 +16,12 @@ def run_knn(k, x_train, y_train, x_test, y_test, formatted_print=True):
     print(f'{acc * 100:.2f}%' if formatted_print else acc)
 
 
-def normalize(x):
-    mini = np.min(x, axis=0).reshape((1, 8))
-    mini = np.repeat(mini, x.shape[0], axis=0)
-    maxi = np.max(x, axis=0).reshape((1, 8))
-    maxi = np.repeat(maxi, x.shape[0], axis=0)
-    norm_x = (x - mini) / (maxi - mini)
-    return norm_x
+def run_knn_ps(k, x_train, y_train, x_test, y_test):
+    neigh = KNNClassifier(k=k)
+    neigh.train(x_train, y_train)
+    y_pred = neigh.predict(x_test)
+    acc = accuracy(y_test, y_pred)
+    return acc
 
 
 def power_set(s):
@@ -33,17 +32,17 @@ def power_set(s):
     return powerset
 
 
-def farthest_point_sample(x, b):
-    top_b_features_indices = []
-    corr_dist = 1 - np.corrcoef(x, rowvar=False)
-    first = np.argmax(np.mean(corr_dist, axis=1))
-    top_b_features_indices.append(first)
-    inner_arg = corr_dist[first, :]
-    for _ in range(b - 1):
-        candidate = inner_arg.argmax()
-        top_b_features_indices.append(candidate)
-        inner_arg = np.minimum(inner_arg, corr_dist[candidate, :])
-    return top_b_features_indices
+# def farthest_point_sample(x, b):
+#     top_b_features_indices = []
+#     corr_dist = 1 - np.corrcoef(x, rowvar=False)
+#     first = np.argmax(np.mean(corr_dist, axis=1))
+#     top_b_features_indices.append(first)
+#     inner_arg = corr_dist[first, :]
+#     for _ in range(b - 1):
+#         candidate = inner_arg.argmax()
+#         top_b_features_indices.append(candidate)
+#         inner_arg = np.minimum(inner_arg, corr_dist[candidate, :])
+#     return top_b_features_indices
 
 
 def get_top_b_features(x, y, b=5, k=51):
@@ -97,7 +96,7 @@ if __name__ == '__main__':
             To run the cross validation experiment over the K,Threshold hyper-parameters
             uncomment below code and run it
     """
-    # run_cross_validation()
+    run_cross_validation()
 
     # # ========================================================================
 
@@ -106,7 +105,7 @@ if __name__ == '__main__':
                                                          test_set=test_dataset,
                                                          target_attribute='Outcome')
 
-    best_k = 51
+    best_k = 21
     b = 4
 
     # # ========================================================================
@@ -120,3 +119,11 @@ if __name__ == '__main__':
     x_test_test = x_test[:, top_m]
     exp_print(f'KNN in selected feature data: ')
     run_knn(best_k, x_train_new, y_train, x_test_test, y_test)
+
+    print('Checking the power set:')
+    best_acc = 0
+    for p in power_set(range(8)):
+        x_train_new = x_train[:, p]
+        x_test_test = x_test[:, p]
+        best_acc = max(run_knn_ps(best_k, x_train_new, y_train, x_test_test, y_test), best_acc)
+    print('The accuracy found in the power set is: ', f'{best_acc * 100:.2f}%')
